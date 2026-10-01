@@ -362,7 +362,7 @@ book.addEventListener('pointerdown', (e) => {
   };
 });
 
-book.addEventListener('pointermove', (e) => {
+document.addEventListener('pointermove', (e) => {
   if (!gesture || e.pointerId !== gesture.id) return;
   const dx = e.clientX - gesture.x0;
   const dy = e.clientY - gesture.y0;
@@ -374,7 +374,6 @@ book.addEventListener('pointermove', (e) => {
     if (target < 0 || target >= SPREADS.length) { gesture = null; return; }
     gesture.started = true;
     gesture.dir = dir;
-    book.setPointerCapture(e.pointerId);
     const h = book.clientHeight;
     // 按下位置靠上就拎上角，靠下就拎下角
     beginFlip(dir, gesture.yRel < h / 2 ? 0 : h);
@@ -408,9 +407,8 @@ function releaseGesture(e, cancelled) {
   animateTo(done, { duration: 220 + 360 * Math.min(1, Math.abs(remaining) / (2 * W)) });
 }
 
-book.addEventListener('pointerup', (e) => releaseGesture(e, false));
-book.addEventListener('pointercancel', (e) => releaseGesture(e, true));
-book.addEventListener('lostpointercapture', (e) => releaseGesture(e, false));
+document.addEventListener('pointerup', (e) => releaseGesture(e, false));
+document.addEventListener('pointercancel', (e) => releaseGesture(e, true));
 
 // iOS Safari 需要在 touchmove 里阻止默认行为才能完全锁住页面
 document.addEventListener('touchmove', (e) => {

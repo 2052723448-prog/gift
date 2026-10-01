@@ -373,6 +373,11 @@ button { font: inherit; }
   .book-overlay .book-back { order: 4; flex-basis: 100%; width: max-content; justify-self: center; }
 }
 
+@media screen and (orientation: landscape) and (max-width: 900px) {
+  .book-overlay .app { gap: 10px; padding-inline: 8px; }
+  .book-overlay .controls { gap: 16px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .book-overlay { transition: none; }
 }

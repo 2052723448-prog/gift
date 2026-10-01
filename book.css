@@ -276,3 +276,16 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .ctrl { transition: none; }
 }
+
+/* 手机横屏时优先利用有限的屏幕高度，让对开书占据更大的画面比例。 */
+@media screen and (orientation: landscape) and (max-width: 900px) {
+  :root {
+    --pw: min(
+      calc((100vw - 24px) / 2),
+      calc((100svh - 60px) / var(--ratio)),
+      460px
+    );
+  }
+
+  .app { gap: 10px; }
+}
