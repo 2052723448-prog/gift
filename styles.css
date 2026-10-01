@@ -332,7 +332,7 @@ button { font: inherit; }
      birthday envelope artwork into the surrounding book scene. */
   background:
     linear-gradient(rgba(18, 10, 5, .42), rgba(18, 10, 5, .52)),
-    url("assets/birthday-envelope-closed.png") center / cover no-repeat;
+    url("assets/birthday-envelope-closed.webp") center / cover no-repeat;
   --paper: url("assets/book/paper.jpg");
   --paper-color: #efe2c4;
   opacity: 0;
@@ -343,7 +343,7 @@ button { font: inherit; }
 .book-is-open {
   background:
     linear-gradient(rgba(18, 10, 5, .42), rgba(18, 10, 5, .52)),
-    url("assets/birthday-envelope-closed.png") center / cover no-repeat;
+    url("assets/birthday-envelope-closed.webp") center / cover no-repeat;
 }
 /* Use the supplied parchment bitmap as the actual paper surface on every page. */
 .book-overlay .page {

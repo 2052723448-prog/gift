@@ -40,11 +40,9 @@ const slotLeft = $('#slotLeft');
 const slotRight = $('#slotRight');
 const flipEl = $('#flip');
 const flipUnder = $('#flipUnder');
-const flipShadow = $('#flipShadow');
 const flipFront = $('#flipFront');
 const flipBack = $('#flipBack');
 const flipBackPage = $('#flipBackPage');
-const flipCurl = $('#flipCurl');
 const prevBtn = $('#prevBtn');
 const nextBtn = $('#nextBtn');
 const counter = $('#counter');
@@ -59,6 +57,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 let current = 0;        // 当前对开页序号
 let animating = false;  // 动画进行中时忽略新的输入
+let rendered = false;   // 书本隐藏时不提前创建和解码书页图片
 let texts = {};
 
 try { texts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { texts = {}; }
@@ -141,7 +140,10 @@ function renderSpread() {
 function openBook() {
   bookRoot.hidden = false;
   document.body.classList.add('book-is-open');
-  renderSpread();
+  if (!rendered) {
+    renderSpread();
+    rendered = true;
+  }
   requestAnimationFrame(() => bookRoot.classList.add('is-visible'));
   nextBtn.focus({ preventScroll: true });
 }
@@ -254,7 +256,6 @@ function drawFlip(P) {
   if (dist < 0.5) {
     flipFront.style.clipPath = 'none';
     flipBack.style.visibility = 'hidden';
-    flipShadow.style.opacity = 0;
     return;
   }
   flipBack.style.visibility = 'visible';
@@ -280,23 +281,6 @@ function drawFlip(P) {
   flipBack.style.transform = `matrix(${ex.x - o.x},${ex.y - o.y},${ey.x - o.x},${ey.y - o.y},${o.x},${o.y})`;
   flipBack.style.clipPath = polygon(flap, (p) => v(2 * W - p.x, p.y));
 
-  // 光影强度：刚掀起和快落下时变弱
-  const strength = Math.min(1, dist / (0.25 * W)) * Math.min(1, (2 * W - dist) / (0.45 * W) + 0.15);
-  const L = DIAG * 2.2;
-
-  // 翻起页在下一页上的投影
-  const sw = Math.min(W * 0.55, dist * 0.6 + 8);
-  flipShadow.style.width = `${sw}px`;
-  flipShadow.style.height = `${L}px`;
-  flipShadow.style.opacity = strength;
-  flipShadow.style.transform = `translate(${M.x - W}px,${M.y}px) rotate(${Math.atan2(n.y, n.x)}rad) translateY(${-L / 2}px)`;
-
-  // 背面卷曲高光，坐标在背面页本地（书脊镜像后）的空间里
-  const cw = Math.min(W * 0.7, dist * 0.5 + 10);
-  flipCurl.style.width = `${cw}px`;
-  flipCurl.style.height = `${L}px`;
-  flipCurl.style.opacity = 0.35 + 0.65 * strength;
-  flipCurl.style.transform = `translate(${2 * W - M.x}px,${M.y}px) rotate(${Math.atan2(n.y, -n.x)}rad) translateY(${-L / 2}px)`;
 }
 
 function setP(P) {
@@ -461,5 +445,4 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') turn(-1);
 });
 
-renderSpread();
 window.giftBook = { open: openBook, close: closeBook };

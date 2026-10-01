@@ -8,10 +8,28 @@ const sparkles = document.querySelector('#sparkles');
 const hint = document.querySelector('#hint');
 const mailStage = document.querySelector('.mail-stage');
 const bookOverlay = document.querySelector('#bookOverlay');
-const defaultLetterImage = openImage.getAttribute('src');
+const backgroundMusic = document.querySelector('#backgroundMusic');
+const defaultLetterImage = openImage.dataset.src;
 const defaultLetterAlt = openImage.getAttribute('alt');
 let revealTimer;
 let sparkleTimer;
+
+function playBackgroundMusic() {
+  if (!backgroundMusic) return;
+  const playAttempt = backgroundMusic.play();
+  if (playAttempt && typeof playAttempt.catch === 'function') {
+    playAttempt.catch(() => {
+      // Browsers may still reject playback in unusual embedded contexts.
+      // The next user gesture will call this function again.
+    });
+  }
+}
+
+function stopBackgroundMusic() {
+  if (!backgroundMusic) return;
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+}
 
 function burst() {
   window.clearTimeout(sparkleTimer);
@@ -35,6 +53,9 @@ function burst() {
 
 function openLetter() {
   if (envelope.classList.contains('is-open')) return;
+  playBackgroundMusic();
+  // Load the large open-letter artwork only after the seal is activated.
+  openImage.src = defaultLetterImage;
   envelope.classList.add('is-open');
   mailStage.classList.add('is-open');
   envelopeWrap.setAttribute('aria-expanded', 'true');
@@ -64,6 +85,7 @@ function continueLetter() {
 function closeLetter() {
   window.clearTimeout(revealTimer);
   window.clearTimeout(sparkleTimer);
+  stopBackgroundMusic();
   sparkles.replaceChildren();
   const restoreFocus = document.activeElement === replayButton;
   envelope.classList.remove('is-open');
@@ -79,7 +101,7 @@ function closeLetter() {
   continueButton.disabled = true;
   continueButton.tabIndex = -1;
   continueButton.setAttribute('aria-hidden', 'true');
-  openImage.src = defaultLetterImage;
+  openImage.removeAttribute('src');
   openImage.alt = defaultLetterAlt;
   hint.removeAttribute('aria-hidden');
   if (restoreFocus) sealButton.focus({ preventScroll: true });

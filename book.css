@@ -177,7 +177,9 @@ button { font: inherit; color: inherit; }
 .flip__flap {
   position: absolute;
   inset: 0;
-  filter: drop-shadow(0 0 5px rgba(40, 25, 10, .22));
+  /* Keep the page curl responsive on phones; expensive per-frame shadows are
+     intentionally omitted while the user drags. */
+  filter: none;
 }
 .flip__back {
   position: absolute;
@@ -189,26 +191,6 @@ button { font: inherit; color: inherit; }
   transform-origin: 0 0;
   will-change: transform;
 }
-/* 翻起页压在下一页上的投影 */
-.flip__shadow,
-.flip__curl {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform-origin: 0 0;
-  pointer-events: none;
-}
-.flip__shadow { background: linear-gradient(to right, rgba(40, 25, 10, .42), rgba(40, 25, 10, .13) 40%, transparent); }
-/* 翻起页背面的卷曲高光 */
-.flip__curl {
-  background: linear-gradient(to right,
-    rgba(70, 45, 15, .30) 0%,
-    rgba(255, 249, 232, .38) 16%,
-    rgba(255, 249, 232, .10) 40%,
-    rgba(90, 60, 25, .10) 70%,
-    transparent 100%);
-}
-
 /* ---------- 翻页按钮 ---------- */
 .controls { display: flex; align-items: center; gap: 22px; }
 .ctrl {
