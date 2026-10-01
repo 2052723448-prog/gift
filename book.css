@@ -163,6 +163,17 @@ button { font: inherit; color: inherit; }
   overflow: hidden;
 }
 .flip__holder { position: absolute; inset: 0; }
+/* .flip__front also carries .flip__holder for its page content. Re-assert
+   the right-half placement after .flip__holder's inset:0 shorthand, otherwise
+   the current right page is painted over the left page while it flips. */
+.flip__front {
+  top: 0;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+}
 .flip__flap {
   position: absolute;
   inset: 0;

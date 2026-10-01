@@ -328,7 +328,11 @@ button { font: inherit; }
   inset: 0;
   z-index: 20;
   display: block;
-  background: #e4e4e2;
+  /* Keep the book pages on their own parchment texture, but carry the
+     birthday envelope artwork into the surrounding book scene. */
+  background:
+    linear-gradient(rgba(18, 10, 5, .42), rgba(18, 10, 5, .52)),
+    url("assets/birthday-envelope-closed.png") center / cover no-repeat;
   --paper: url("assets/book/paper.jpg");
   --paper-color: #efe2c4;
   opacity: 0;
@@ -336,7 +340,11 @@ button { font: inherit; }
 }
 .book-overlay.is-visible { opacity: 1; }
 .book-overlay .app { position: relative; z-index: 1; }
-.book-is-open { background: #e4e4e2; }
+.book-is-open {
+  background:
+    linear-gradient(rgba(18, 10, 5, .42), rgba(18, 10, 5, .52)),
+    url("assets/birthday-envelope-closed.png") center / cover no-repeat;
+}
 /* Use the supplied parchment bitmap as the actual paper surface on every page. */
 .book-overlay .page {
   background-image: url("assets/book/paper.jpg");
