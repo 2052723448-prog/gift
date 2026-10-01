@@ -319,3 +319,52 @@ button { font: inherit; }
   .mail-stage__hint { max-width: 90vw; font-size: 11px; }
   .status-note { font-size: 6px; letter-spacing: .16em; }
 }
+
+[hidden] { display: none !important; }
+
+/* The book is a second scene revealed by the birthday card's Continue button. */
+.book-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: block;
+  background: #e4e4e2;
+  --paper: url("assets/book/paper.jpg");
+  --paper-color: #efe2c4;
+  opacity: 0;
+  transition: opacity .24s ease;
+}
+.book-overlay.is-visible { opacity: 1; }
+.book-overlay .app { position: relative; z-index: 1; }
+.book-is-open { background: #e4e4e2; }
+/* Use the supplied parchment bitmap as the actual paper surface on every page. */
+.book-overlay .page {
+  background-image: url("assets/book/paper.jpg");
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.book-overlay .book-back {
+  min-height: 36px;
+  border: 1px solid rgba(0, 0, 0, .12);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #666;
+  background: rgba(255, 255, 255, .55);
+  cursor: pointer;
+  font: 12px/1 "Songti SC", serif;
+  letter-spacing: .08em;
+}
+.book-overlay .book-back:hover { background: rgba(255,255,255,.8); }
+.book-overlay .book-back:focus-visible { outline: 2px solid #777; outline-offset: 3px; }
+.book-overlay .controls { flex-wrap: wrap; justify-content: center; }
+
+@media (max-width: 560px) {
+  .book-overlay .app { gap: 12px; padding-inline: 8px; }
+  .book-overlay .book-back { order: 4; flex-basis: 100%; width: max-content; justify-self: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-overlay { transition: none; }
+}

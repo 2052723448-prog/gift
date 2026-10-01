@@ -7,10 +7,9 @@ const openImage = document.querySelector('.envelope-art__image--open');
 const sparkles = document.querySelector('#sparkles');
 const hint = document.querySelector('#hint');
 const mailStage = document.querySelector('.mail-stage');
+const bookOverlay = document.querySelector('#bookOverlay');
 const defaultLetterImage = openImage.getAttribute('src');
 const defaultLetterAlt = openImage.getAttribute('alt');
-const nextLetterImage = 'assets/birthday-envelope-next-school.png';
-const nextLetterAlt = '复古风格的江门广雅学校纪念信件图片';
 let revealTimer;
 let sparkleTimer;
 
@@ -22,10 +21,8 @@ function burst() {
   for (let i = 0; i < count; i += 1) {
     const dot = document.createElement('span');
     dot.className = 'sparkle';
-    const x = 50 + (Math.random() - 0.5) * 28;
-    const y = 53 + (Math.random() - 0.5) * 11;
-    dot.style.left = `${x}%`;
-    dot.style.top = `${y}%`;
+    dot.style.left = `${50 + (Math.random() - 0.5) * 28}%`;
+    dot.style.top = `${53 + (Math.random() - 0.5) * 11}%`;
     dot.style.setProperty('--dx', `${(Math.random() - 0.5) * 300}px`);
     dot.style.setProperty('--dy', `${-50 - Math.random() * 190}px`);
     dot.style.animationDelay = `${Math.random() * .22}s`;
@@ -60,10 +57,8 @@ function openLetter() {
 }
 
 function continueLetter() {
-  if (!envelope.classList.contains('is-open')) return;
-  openImage.src = nextLetterImage;
-  openImage.alt = nextLetterAlt;
-  continueButton.classList.add('is-selected');
+  if (!envelope.classList.contains('is-open') || !window.giftBook) return;
+  window.giftBook.open();
 }
 
 function closeLetter() {
@@ -95,5 +90,6 @@ replayButton.addEventListener('click', closeLetter);
 continueButton.addEventListener('click', continueLetter);
 
 document.addEventListener('keydown', (event) => {
+  if (!bookOverlay.hidden) return;
   if (event.key === 'Escape' && envelope.classList.contains('is-open')) closeLetter();
 });

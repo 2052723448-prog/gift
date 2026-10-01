@@ -1,0 +1,267 @@
+/* ============================================================
+   可调参数
+   - 替换羊皮纸：改 --paper 的图片路径
+   - 书页比例：改 --ratio（高 / 宽）
+   ============================================================ */
+:root {
+  --paper: url("assets/book/paper.jpg");
+  --paper-color: #efe2c4;
+  --ratio: 1.42;
+  --bg: #e4e4e2;
+  --ink: #3b2a1a;
+  /* 单页宽度：受屏宽、屏高共同约束，桌面端封顶 */
+  --pw: min(calc((100vw - 24px) / 2), calc((100vh - 140px) / var(--ratio)), 330px);
+}
+@supports (height: 100svh) {
+  :root { --pw: min(calc((100vw - 24px) / 2), calc((100svh - 140px) / var(--ratio)), 330px); }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* 锁定整页滚动，防止翻页时页面上下跑 */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; }
+
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+}
+
+/* ---------- 书本 ---------- */
+.book {
+  position: relative;
+  width: calc(var(--pw) * 2);
+  height: calc(var(--pw) * var(--ratio));
+  border-radius: 6px;
+  box-shadow: 0 18px 36px rgba(40, 40, 40, .18), 0 3px 8px rgba(40, 40, 40, .10);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.slot {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+}
+/* 外侧露出的书页厚度 */
+.slot--left {
+  left: 0;
+  border-radius: 6px 0 0 6px;
+  box-shadow: -1px 1px 0 #f1e6cb, -2px 2px 0 #d9c7a0, -3px 3px 0 #efe3c6, -4px 4px 0 #cfbb90;
+}
+.slot--right {
+  left: 50%;
+  border-radius: 0 6px 6px 0;
+  box-shadow: 1px 1px 0 #f1e6cb, 2px 2px 0 #d9c7a0, 3px 3px 0 #efe3c6, 4px 4px 0 #cfbb90;
+}
+
+/* ---------- 单张书页 ---------- */
+.page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--paper-color) var(--paper) center / cover;
+}
+.page--left { border-radius: 6px 0 0 6px; }
+.page--right { border-radius: 0 6px 6px 0; }
+/* 靠书脊一侧的折痕阴影 */
+.page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.page--left::after { background: linear-gradient(to left, rgba(90, 60, 25, .24), rgba(90, 60, 25, .07) 7%, transparent 18%); }
+.page--right::after { background: linear-gradient(to right, rgba(90, 60, 25, .24), rgba(90, 60, 25, .07) 7%, transparent 18%); }
+
+/* 自定义内容（SPREADS 里的 html） */
+.page__custom { position: absolute; inset: 9% 9% 9% 11%; color: var(--ink); }
+
+/* 左页：纸条区域 */
+.note {
+  position: absolute;
+  left: 9%;
+  right: 11%;
+  top: 50%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  transform: translateY(-50%) rotate(-.8deg);
+  cursor: zoom-in;
+}
+.note img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(60, 35, 10, .25), 0 4px 10px rgba(60, 35, 10, .16);
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.note:focus-visible { outline: 2px solid #8a6a3c; outline-offset: 3px; }
+
+/* 右页：空白可书写区域（不放任何预设文字） */
+.writer {
+  position: absolute;
+  inset: 9% 9% 9% 11%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 16px/1.75 "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; /* ≥16px：iOS 聚焦时不会自动放大 */
+  resize: none;
+  outline: none;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  caret-color: #7a5428;
+  touch-action: pan-y;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.writer--static { overflow: hidden; }
+
+/* ---------- 翻页层 ---------- */
+.flip {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+/* 向后翻：整层以书脊为轴镜像，书页内容再镜像回来 */
+.flip.is-back { transform: scaleX(-1); }
+.flip.is-back .page { transform: scaleX(-1); }
+
+.flip__under,
+.flip__front {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+.flip__holder { position: absolute; inset: 0; }
+.flip__flap {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 0 5px rgba(40, 25, 10, .22));
+}
+.flip__back {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* 翻起页压在下一页上的投影 */
+.flip__shadow,
+.flip__curl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.flip__shadow { background: linear-gradient(to right, rgba(40, 25, 10, .42), rgba(40, 25, 10, .13) 40%, transparent); }
+/* 翻起页背面的卷曲高光 */
+.flip__curl {
+  background: linear-gradient(to right,
+    rgba(70, 45, 15, .30) 0%,
+    rgba(255, 249, 232, .38) 16%,
+    rgba(255, 249, 232, .10) 40%,
+    rgba(90, 60, 25, .10) 70%,
+    transparent 100%);
+}
+
+/* ---------- 翻页按钮 ---------- */
+.controls { display: flex; align-items: center; gap: 22px; }
+.ctrl {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0, 0, 0, .12);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .55);
+  color: #555;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.ctrl:disabled { opacity: .3; cursor: default; }
+.ctrl:focus-visible { outline: 2px solid #777; outline-offset: 3px; }
+.counter {
+  min-width: 64px;
+  text-align: center;
+  color: #777;
+  font: 13px/1 Georgia, serif;
+  letter-spacing: .14em;
+}
+
+/* ---------- 纸条放大查看 ---------- */
+.viewer {
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(30, 30, 30, .94);
+}
+.viewer::backdrop { background: rgba(30, 30, 30, .6); }
+.viewer__scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  display: grid;
+  place-items: center;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y;
+}
+.viewer__scroll img { display: block; width: min(100vw, 900px); height: auto; }
+.viewer.is-zoomed .viewer__scroll { place-items: start; }
+.viewer.is-zoomed .viewer__scroll img { width: 220vw; max-width: none; }
+.viewer__bar {
+  position: absolute;
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  display: flex;
+  gap: 10px;
+}
+.viewer__bar button {
+  padding: 9px 18px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 999px;
+  background: rgba(20, 20, 20, .7);
+  color: #eee;
+  font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctrl { transition: none; }
+}

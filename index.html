@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#1c1712" />
     <title>给你的生日来信</title>
-    <link rel="stylesheet" href="styles.css?v=continue-20261001-v2" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="book.css?v=bookfx-20261001-v1" />
+    <link rel="stylesheet" href="styles.css?v=bookfx-20261001-v4" />
   </head>
   <body>
     <main class="scene" aria-label="生日来信互动场景">
@@ -48,9 +50,54 @@
         </div>
       </section>
 
+      <section class="book-overlay" id="bookOverlay" aria-label="可拖拽翻页的生日记忆书" hidden>
+        <div class="app">
+          <div class="book" id="book" role="region" aria-roledescription="翻页书" aria-label="对开书页，左右滑动或拖动书角翻页">
+            <div class="slot slot--left" id="slotLeft"></div>
+            <div class="slot slot--right" id="slotRight"></div>
+
+            <div class="flip" id="flip" aria-hidden="true" hidden>
+              <div class="flip__under">
+                <div class="flip__holder" id="flipUnder"></div>
+                <div class="flip__shadow" id="flipShadow"></div>
+              </div>
+              <div class="flip__holder flip__front" id="flipFront"></div>
+              <div class="flip__flap">
+                <div class="flip__back" id="flipBack">
+                  <div class="flip__holder" id="flipBackPage"></div>
+                  <div class="flip__curl" id="flipCurl"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <nav class="controls" aria-label="翻页">
+            <button class="ctrl" id="prevBtn" type="button" aria-label="上一页">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <span class="counter" id="counter" role="status" aria-live="polite">1 / 22</span>
+            <button class="ctrl" id="nextBtn" type="button" aria-label="下一页">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button class="book-back" id="bookBack" type="button">返回生日信件</button>
+          </nav>
+        </div>
+      </section>
+
       <div class="sparkles" id="sparkles" aria-hidden="true"></div>
     </main>
 
-    <script src="script.js"></script>
+    <dialog class="viewer" id="viewer" aria-label="放大查看纸条">
+      <div class="viewer__scroll" id="viewerScroll">
+        <img id="viewerImg" alt="" />
+      </div>
+      <div class="viewer__bar">
+        <button type="button" id="viewerZoom" aria-pressed="false">放大</button>
+        <button type="button" id="viewerClose">关闭</button>
+      </div>
+    </dialog>
+
+    <script src="script.js?v=birthday-envelope-20261001-v4"></script>
+    <script src="book.js?v=bookfx-20261001-v1"></script>
   </body>
 </html>
