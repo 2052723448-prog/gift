@@ -222,6 +222,89 @@ button { font: inherit; }
 .replay:focus-visible { outline: 2px solid #e0bb72; outline-offset: 5px; }
 .status-note { min-height: 14px; margin-top: 7px; }
 
+/* The next-step control sits directly below the parchment replay control. */
+.mail-stage__button-stack {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-height: 48px;
+}
+
+.mail-stage__button-stack .replay {
+  position: relative;
+  grid-area: auto;
+  inset: auto;
+}
+
+.continue-button {
+  position: relative;
+  display: none;
+  width: 184px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #52331b;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity .4s ease, transform .4s ease, filter .25s ease;
+}
+
+.continue-button.is-visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.continue-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px #110a05);
+}
+
+.continue-button span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding-bottom: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .18em;
+}
+
+.continue-button:hover { filter: brightness(1.12); }
+.continue-button:focus-visible { outline: 2px solid #e0bb72; outline-offset: 5px; }
+.continue-button.is-selected { filter: brightness(1.12); }
+
+/* Keep both open-state controls inside the first viewport. */
+.mail-stage.is-open .envelope-wrap {
+  width: min(62vw, 760px, calc(100svh - 255px));
+}
+
+@media (max-width: 900px) {
+  .mail-stage.is-open .envelope-wrap {
+    width: min(84vw, 610px, calc(100svh - 255px));
+  }
+}
+
+@media (max-width: 700px) {
+  .mail-stage.is-open .envelope-wrap {
+    width: min(92vw, 560px, calc(100svh - 265px));
+  }
+}
+
 @media (max-width: 900px) {
   .scene__sprig { display: none; }
   .envelope-wrap { width: min(84vw, 610px, calc(100svh - 215px)); }
