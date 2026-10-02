@@ -92,6 +92,22 @@ button { font: inherit; color: inherit; }
 .page--left::after { background: linear-gradient(to left, rgba(90, 60, 25, .24), rgba(90, 60, 25, .07) 7%, transparent 18%); }
 .page--right::after { background: linear-gradient(to right, rgba(90, 60, 25, .24), rgba(90, 60, 25, .07) 7%, transparent 18%); }
 
+/* ---------- 封面 ---------- */
+/* 合上时只有右半边的封面，整本书向左平移 1/4 让封面居中 */
+.book { transition: transform .5s ease, box-shadow .5s ease; }
+.book.is-closed { transform: translateX(-25%); box-shadow: none; }
+.book-overlay .page.page--empty { background: none; }
+.page--empty::after { content: none; }
+.slot--left:has(.page--empty) { box-shadow: none; }
+.book-overlay .page.page--cover {
+  background: #d9c49b url("assets/book/cover.jpg?v=2") center / cover;
+  border-radius: 3px 8px 8px 3px;
+  box-shadow: 0 18px 36px rgba(40, 40, 40, .2), 0 3px 8px rgba(40, 40, 40, .12);
+  cursor: pointer;
+}
+/* 书脊折痕 */
+.page--cover::after { background: linear-gradient(to right, rgba(70, 45, 18, .35), rgba(255, 245, 220, .12) 2.5%, rgba(70, 45, 18, .14) 5%, transparent 9%); }
+
 /* 自定义内容（SPREADS 里的 html） */
 .page__custom { position: absolute; inset: 9% 9% 9% 11%; color: var(--ink); }
 
@@ -120,6 +136,25 @@ button { font: inherit; color: inherit; }
 }
 .note:focus-visible { outline: 2px solid #8a6a3c; outline-offset: 3px; }
 
+/* 右页：字条（竖版 / 横版都完整显示，按图片比例居中） */
+.note--slip {
+  inset: 9% 9% 9% 11%;
+  aspect-ratio: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(.6deg);
+  pointer-events: none;
+}
+.note--slip img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: auto;
+}
+
 /* 右页：空白可书写区域（不放任何预设文字） */
 .writer {
   position: absolute;
@@ -129,7 +164,7 @@ button { font: inherit; color: inherit; }
   border: 0;
   background: transparent;
   color: var(--ink);
-  font: 16px/1.75 "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; /* ≥16px：iOS 聚焦时不会自动放大 */
+  font: 16px/1.75 "Xingkai SC", "STXingkai", "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; /* 行楷；≥16px：iOS 聚焦时不会自动放大 */
   resize: none;
   outline: none;
   overflow-y: auto;
@@ -236,9 +271,11 @@ button { font: inherit; color: inherit; }
   overscroll-behavior: contain;
   touch-action: pan-x pan-y;
 }
-.viewer__scroll img { display: block; width: min(100vw, 900px); height: auto; }
+/* 竖版字条不超出屏幕高度，否则居中后顶部会被裁掉、滚不上去 */
+.viewer__scroll img { display: block; width: auto; height: auto; max-width: min(100vw, 900px); max-height: 100vh; }
+@supports (height: 100svh) { .viewer__scroll img { max-height: 100svh; } }
 .viewer.is-zoomed .viewer__scroll { place-items: start; }
-.viewer.is-zoomed .viewer__scroll img { width: 220vw; max-width: none; }
+.viewer.is-zoomed .viewer__scroll img { width: 220vw; max-width: none; max-height: none; }
 .viewer__bar {
   position: absolute;
   right: 12px;
@@ -256,7 +293,7 @@ button { font: inherit; color: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ctrl { transition: none; }
+  .ctrl, .book { transition: none; }
 }
 
 /* 手机横屏时优先利用有限的屏幕高度，让对开书占据更大的画面比例。 */

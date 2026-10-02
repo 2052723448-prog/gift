@@ -13,21 +13,38 @@ const NOTE_FULL_DIR = 'assets/book/notes/full/';
 
 const NOTES = [
   'IMG_4057', 'IMG_4058', 'IMG_4059', 'IMG_4060', 'IMG_4061', 'IMG_4062',
-  'IMG_4063', 'IMG_4064', 'IMG_4065', 'IMG_4066', 'IMG_4067', 'IMG_4068',
+  'IMG_4063', 'IMG_4065', 'IMG_4066', 'IMG_4067', 'IMG_4068',
   'IMG_4069', 'IMG_4070', 'IMG_4071', 'IMG_4072', 'IMG_4073', 'IMG_4075',
   'IMG_4077', 'IMG_4078', 'IMG_4079', 'IMG_4080',
 ];
 
+// 右页字条：同样分书页图 / 放大图两份
+const SLIP_DIR = 'assets/book/slips/';
+const SLIP_FULL_DIR = 'assets/book/slips/full/';
+
+// 第 i 个对开页右页放第几号字条（'17-19' = 17、19 两张合成一张）；超出部分（最后两页）留空白可书写
+const SLIPS = [21, 9, 10, 11, 12, 13, 14, 2, 1, 3, 6, 4, 5, 8, 7, 16, 18, '17-19', 20];
+
 // 每一项 = 一个对开页（左页 + 右页）。增删项目即可改变页数。
-//   id         : 唯一标识，右页输入的文字按它保存在本机
-//   left.image : 左页纸条图片文件名（位于 NOTE_DIR）
-//   left.html  : 可选，左页自定义 HTML（文字 / 图片），设置后替代纸条
-//   right.html : 可选，右页自定义 HTML；不设置时右页是可点击输入的空白羊皮纸
-const SPREADS = NOTES.map((name) => ({
-  id: name,
-  left: { image: `${name}.jpg` },
-  right: {},
-}));
+//   id          : 唯一标识，右页输入的文字按它保存在本机
+//   left.image  : 左页纸条图片文件名（位于 NOTE_DIR）
+//   right.image : 右页字条图片文件名（位于 SLIP_DIR）
+//   *.html      : 可选，自定义 HTML（文字 / 图片），设置后替代图片
+//   右页既没有 image 也没有 html 时，是可点击输入的空白羊皮纸
+//   第 0 项是封面：合上的书只露出右半边封面，左半边空着
+const SPREADS = [
+  { id: 'cover', left: { empty: true }, right: { cover: true } },
+  ...NOTES.map((name, i) => ({
+    id: name,
+    left: { image: `${name}.jpg` },
+    right: SLIPS[i] ? { image: `slip-${String(SLIPS[i]).padStart(2, '0')}.jpg` } : {},
+  })),
+];
+
+const IMAGE_DIRS = {
+  left: { dir: NOTE_DIR, full: NOTE_FULL_DIR, label: '纸条' },
+  right: { dir: SLIP_DIR, full: SLIP_FULL_DIR, label: '字条' },
+};
 
 const STORAGE_KEY = 'flipbook-text-v1';
 
@@ -77,6 +94,20 @@ function buildPage(index, side, live) {
   if (!spread) return page;
   const cfg = spread[side] || {};
 
+  if (cfg.empty) {
+    page.classList.add('page--empty');
+    return page;
+  }
+
+  if (cfg.cover) {
+    page.classList.add('page--cover');
+    if (live) {
+      page.setAttribute('role', 'img');
+      page.setAttribute('aria-label', '封面：Memoir 回忆录');
+    }
+    return page;
+  }
+
   if (cfg.html) {
     const box = document.createElement('div');
     box.className = 'page__custom';
@@ -85,21 +116,23 @@ function buildPage(index, side, live) {
     return page;
   }
 
-  if (side === 'left' && cfg.image) {
+  if (cfg.image) {
+    const { dir, full, label } = IMAGE_DIRS[side];
     const note = document.createElement(live ? 'button' : 'div');
-    note.className = 'note';
+    note.className = side === 'right' ? 'note note--slip' : 'note';
     if (live) {
       note.type = 'button';
-      note.dataset.full = NOTE_FULL_DIR + cfg.image;
-      note.setAttribute('aria-label', `放大查看第 ${index + 1} 张纸条`);
+      note.dataset.full = full + cfg.image;
+      note.setAttribute('aria-label', `放大查看第 ${index} 张${label}`);
     }
     const img = new Image();
-    img.src = NOTE_DIR + cfg.image;
-    img.alt = live ? `第 ${index + 1} 张手写纸条` : '';
+    img.src = dir + cfg.image;
+    img.alt = live ? `第 ${index} 张手写${label}` : '';
     img.decoding = 'async';
     img.draggable = false;
     note.append(img);
     page.append(note);
+    return page;
   }
 
   if (side === 'right') {
@@ -110,7 +143,7 @@ function buildPage(index, side, live) {
       area.value = value;
       area.dataset.key = spread.id;
       area.spellcheck = false;
-      area.setAttribute('aria-label', `第 ${index + 1} 页右侧书写区`);
+      area.setAttribute('aria-label', `第 ${index} 页右侧书写区`);
       page.append(area);
     } else if (value) {
       const text = document.createElement('div');
@@ -123,14 +156,19 @@ function buildPage(index, side, live) {
 }
 
 function preload(index) {
-  const cfg = SPREADS[index] && SPREADS[index].left;
-  if (cfg && cfg.image) new Image().src = NOTE_DIR + cfg.image;
+  const spread = SPREADS[index];
+  if (!spread) return;
+  ['left', 'right'].forEach((side) => {
+    const cfg = spread[side];
+    if (cfg && cfg.image) new Image().src = IMAGE_DIRS[side].dir + cfg.image;
+  });
 }
 
 function renderSpread() {
   slotLeft.replaceChildren(buildPage(current, 'left', true));
   slotRight.replaceChildren(buildPage(current, 'right', true));
-  counter.textContent = `${current + 1} / ${SPREADS.length}`;
+  book.classList.toggle('is-closed', current === 0);
+  counter.textContent = current === 0 ? '封面' : `${current} / ${SPREADS.length - 1}`;
   prevBtn.disabled = current === 0;
   nextBtn.disabled = current === SPREADS.length - 1;
   preload(current + 1);
@@ -140,7 +178,9 @@ function renderSpread() {
 function openBook() {
   bookRoot.hidden = false;
   document.body.classList.add('book-is-open');
-  if (!rendered) {
+  // 每次从信件进来都先看到合着的封面
+  if (!rendered || current !== 0) {
+    current = 0;
     renderSpread();
     rendered = true;
   }
@@ -185,6 +225,9 @@ function beginFlip(dir, cy) {
     flipBackPage.replaceChildren(buildPage(target, 'right', false));
   }
   flipEl.classList.toggle('is-back', dir < 0);
+  // 翻开封面时书本同时滑到居中；合回封面时左页要逐渐露出空白，先藏起底下的真实左页
+  if (current === 0) book.classList.remove('is-closed');
+  if (target === 0) slotLeft.style.visibility = 'hidden';
   flipEl.hidden = false;
   if (document.activeElement && document.activeElement.classList.contains('writer')) {
     document.activeElement.blur();
@@ -208,6 +251,8 @@ function hideFlip() {
   flipFront.replaceChildren();
   flipUnder.replaceChildren();
   flipBackPage.replaceChildren();
+  slotLeft.style.visibility = '';
+  book.classList.toggle('is-closed', current === 0);
   flip = null;
   animating = false;
 }
@@ -414,6 +459,7 @@ book.addEventListener('click', (e) => {
   if (suppressClick) { e.preventDefault(); e.stopPropagation(); return; }
   const note = e.target.closest('.note');
   if (note && note.dataset.full) openViewer(note.dataset.full);
+  else if (e.target.closest('.page--cover')) turn(1);  // 轻点封面也能翻开
 }, true);
 
 function openViewer(src) {
