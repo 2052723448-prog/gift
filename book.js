@@ -7,8 +7,8 @@
    内容配置（改这里就能增删书页、换内容）
    ============================================================ */
 
-// 纸条图片：翻页用 assets/notes/，点开放大用 assets/notes/full/（同名文件）
-const NOTE_DIR = 'assets/book/notes/';
+// 纸条图片：翻页用 assets/book/pages/notes/（已补成书页比例，铺满不裁字），点开放大用 assets/book/notes/full/（同名文件）
+const NOTE_DIR = 'assets/book/pages/notes/';
 const NOTE_FULL_DIR = 'assets/book/notes/full/';
 
 const NOTES = [
@@ -19,7 +19,7 @@ const NOTES = [
 ];
 
 // 右页字条：同样分书页图 / 放大图两份
-const SLIP_DIR = 'assets/book/slips/';
+const SLIP_DIR = 'assets/book/pages/slips/';
 const SLIP_FULL_DIR = 'assets/book/slips/full/';
 
 // 第 i 个对开页右页放第几号字条（'17-19' = 17、19 两张合成一张）；超出部分（最后两页）留空白可书写
@@ -47,6 +47,12 @@ const IMAGE_DIRS = {
 };
 
 const STORAGE_KEY = 'flipbook-text-v1';
+
+// 右页书写区的默认文字（写进代码，换设备 / 换浏览器打开也能看到）；在页面上改过的内容按 id 另存在本机，优先显示
+const DEFAULT_TEXTS = {
+  IMG_4079: '\n\n\n\n短暂沉寂了。。。。。。。。。',
+  IMG_4080: '\n\n我不知道未来会怎么样， 但是我们是并肩前行的伙伴，也是彼此重要的人。我希望在新的一年里面 小鱼可以天天开心，学业进步 ，考上心仪的大学 祝你18岁生日快乐  故事才刚刚开始！\n\n\n\n\n\n                                              你男朋友\n                                                 陆星燃\n',
+};
 
 /* ============================================================
    DOM
@@ -136,7 +142,7 @@ function buildPage(index, side, live) {
   }
 
   if (side === 'right') {
-    const value = texts[spread.id] || '';
+    const value = texts[spread.id] ?? DEFAULT_TEXTS[spread.id] ?? '';
     if (live) {
       const area = document.createElement('textarea');
       area.className = 'writer';
