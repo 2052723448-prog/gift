@@ -29,7 +29,7 @@ body {
   position: fixed;
   inset: 0;
   background: var(--bg);
-  font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
+  font-family: "LXGW WenKai", "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
   touch-action: manipulation;
 }
 button { font: inherit; color: inherit; }
@@ -141,7 +141,7 @@ button { font: inherit; color: inherit; }
   border: 0;
   background: transparent;
   color: var(--ink);
-  font: 16px/1.75 "Xingkai SC", "STXingkai", "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; /* 行楷；≥16px：iOS 聚焦时不会自动放大 */
+  font: 16px/1.75 "LXGW WenKai", "Xingkai SC", "STXingkai", "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif; /* 行楷；≥16px：iOS 聚焦时不会自动放大 */
   resize: none;
   outline: none;
   overflow-y: auto;
